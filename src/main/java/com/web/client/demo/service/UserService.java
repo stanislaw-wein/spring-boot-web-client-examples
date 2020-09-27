@@ -15,12 +15,14 @@ import java.time.Duration;
 @AllArgsConstructor
 @Slf4j
 public class UserService {
+    private static final String USERS_URL_TEMPLATE = "/users/{id}";
+    private static final String BROKEN_URL_TEMPLATE = "/broken-url/{id}";
     private final WebClient webClient;
 
     public Mono<User> getUserByIdAsync(final String id) {
         return webClient
                 .get()
-                .uri(String.join("", "/users/", id))
+                .uri(USERS_URL_TEMPLATE, id)
                 .retrieve()
                 .bodyToMono(User.class);
     }
@@ -28,7 +30,7 @@ public class UserService {
     public User getUserByIdSync(final String id) {
         return webClient
                 .get()
-                .uri(String.join("", "/users/", id))
+                .uri(USERS_URL_TEMPLATE, id)
                 .retrieve()
                 .bodyToMono(User.class)
                 .block();
@@ -37,7 +39,7 @@ public class UserService {
     public User getUserWithRetry(final String id) {
         return webClient
                 .get()
-                .uri(String.join("", "/broken-url/", id))
+                .uri(BROKEN_URL_TEMPLATE, id)
                 .retrieve()
                 .bodyToMono(User.class)
                 .retryWhen(Retry.fixedDelay(3, Duration.ofMillis(300)))
@@ -47,7 +49,7 @@ public class UserService {
     public User getUserWithFallback(final String id) {
         return webClient
                 .get()
-                .uri(String.join("", "/broken-url/", id))
+                .uri(BROKEN_URL_TEMPLATE, id)
                 .retrieve()
                 .bodyToMono(User.class)
                 .doOnError(error -> log.error("An error has occurred {}", error.getMessage()))
@@ -58,7 +60,7 @@ public class UserService {
     public User getUserWithErrorHandling(final String id) {
         return webClient
                 .get()
-                .uri(String.join("", "/broken-url/", id))
+                .uri(BROKEN_URL_TEMPLATE, id)
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError,
                         error -> Mono.error(new RuntimeException("API not found")))
