@@ -17,6 +17,7 @@ import java.time.Duration;
 public class UserService {
     private static final String USERS_URL_TEMPLATE = "/users/{id}";
     private static final String BROKEN_URL_TEMPLATE = "/broken-url/{id}";
+    public static final int DELAY_MILLIS = 100;
     private final WebClient webClient;
 
     public Mono<User> getUserByIdAsync(final String id) {
@@ -42,7 +43,7 @@ public class UserService {
                 .uri(BROKEN_URL_TEMPLATE, id)
                 .retrieve()
                 .bodyToMono(User.class)
-                .retryWhen(Retry.fixedDelay(3, Duration.ofMillis(300)))
+                .retryWhen(Retry.fixedDelay(3, Duration.ofMillis(DELAY_MILLIS)))
                 .block();
     }
 
