@@ -64,9 +64,9 @@ public class UserService {
                 .get()
                 .uri(BROKEN_URL_TEMPLATE, id)
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError,
+                .onStatus(HttpStatus.NOT_FOUND::equals,
                         error -> Mono.error(new RuntimeException("API not found")))
-                .onStatus(HttpStatus::is5xxServerError,
+                .onStatus(HttpStatus.SERVICE_UNAVAILABLE::equals,
                         error -> Mono.error(new RuntimeException("Server is not responding")))
                 .bodyToMono(User.class)
                 .block();
