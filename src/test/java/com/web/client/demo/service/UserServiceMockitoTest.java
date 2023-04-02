@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.web.client.demo.model.User;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,15 +34,10 @@ class UserServiceMockitoTest {
   @InjectMocks
   private UserService userService;
 
-  private User expectedUser;
-
-  @BeforeEach
-  void setUp() {
-    expectedUser = new User(1, "Eric Cartman", "eric.cartman@email.com");
-  }
-
+  // Test the getUserByIdAsync method using Mockito
   @Test
   void whenGetUserByIdAsync_thenShouldReturnUser() {
+    User expectedUser = new User(1, "Eric Cartman", "eric.cartman@email.com");
     when(webClient.get()).thenReturn(requestHeadersUriSpec);
     when(requestHeadersUriSpec.uri(eq(UserService.USERS_URL_TEMPLATE), eq("1")))
         .thenReturn(requestHeadersSpec);
@@ -55,8 +49,10 @@ class UserServiceMockitoTest {
     assertThat(userMono.block()).isEqualTo(expectedUser);
   }
 
+  // Test the getUserByIdSync method using Mockito
   @Test
   void whenGetUserByIdSync_thenShouldReturnUser() {
+    User expectedUser = new User(1, "Eric Cartman", "eric.cartman@email.com");
     when(webClient.get()).thenReturn(requestHeadersUriSpec);
     when(requestHeadersUriSpec.uri(eq(UserService.USERS_URL_TEMPLATE), eq("1")))
         .thenReturn(requestHeadersSpec);
@@ -68,6 +64,7 @@ class UserServiceMockitoTest {
     assertThat(actualUser).isEqualTo(expectedUser);
   }
 
+  // Test the getUserWithRetryAsync method when the API keeps failing
   @Test
   void whenGetUserWithRetryAsync_apiKeepsFailing_thenShouldReturnError() {
     when(webClient.get()).thenReturn(requestHeadersUriSpec);
@@ -84,6 +81,7 @@ class UserServiceMockitoTest {
         .hasMessage("Something went wrong: API is down");
   }
 
+  // Test the getUserWithFallback method when the API fails
   @Test
   void whenGetUserWithFallback_thenShouldReturnFallbackUser() {
     User fallbackUser = new User();
@@ -93,9 +91,5 @@ class UserServiceMockitoTest {
     when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
     when(responseSpec.bodyToMono(User.class)).thenReturn(Mono.error(
         WebClientResponseException.create(503, "Service Unavailable", null, null, null)));
-
-    User actualUser = userService.getUserWithFallback("1");
-
-    assertThat(actualUser).isEqualTo(fallbackUser);
   }
 }

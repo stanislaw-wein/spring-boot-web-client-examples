@@ -66,9 +66,7 @@
       <scope>test</scope>
       <version>5.2.0</version>
     </dependency>
-
     <!-- mockito end-->
-
   </dependencies>
   <description>Demo project for Spring Boot</description>
   <groupId>com.example</groupId>

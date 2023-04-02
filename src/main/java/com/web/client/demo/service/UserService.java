@@ -2,7 +2,7 @@ package com.web.client.demo.service;
 
 import com.web.client.demo.model.User;
 import java.time.Duration;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -11,15 +11,15 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class UserService {
 
-  static final int MAX_RETRY_ATTEMPTS = 3;
+  private static final int MAX_RETRY_ATTEMPTS = 3;
+  private static final int DELAY_MILLIS = 100;
+  private final WebClient webClient;
   static final String USERS_URL_TEMPLATE = "/users/{id}";
   static final String BROKEN_URL_TEMPLATE = "/broken-url/{id}";
-  static final int DELAY_MILLIS = 100;
-  private final WebClient webClient;
 
   public Mono<User> getUserByIdAsync(final String id) {
     return webClient.get()

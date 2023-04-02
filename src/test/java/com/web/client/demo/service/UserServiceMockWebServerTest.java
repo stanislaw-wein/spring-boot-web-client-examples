@@ -26,7 +26,7 @@ class UserServiceMockWebServerTest {
   private static UserService userService;
   private static ObjectMapper objectMapper;
 
-
+  // Set up the test environment by initializing the mock web server and user service
   @BeforeAll
   static void setUp() throws IOException {
     objectMapper = new ObjectMapper();
@@ -37,11 +37,13 @@ class UserServiceMockWebServerTest {
         .build());
   }
 
+  // Tear down the test environment by shutting down the mock web server
   @AfterAll
   static void tearDown() throws IOException {
     mockWebServer.shutdown();
   }
 
+  // Test the asynchronous getUserById method
   @Test
   void whenGetUserByIdAsync_thenShouldReturnUser() throws JsonProcessingException {
     User expectedUser = new User(1, "Eric Cartman", "eric.cartman@email.com");
@@ -54,6 +56,7 @@ class UserServiceMockWebServerTest {
         .verifyComplete();
   }
 
+  // Test the synchronous getUserById method
   @Test
   void whenGetUserByIdSync_thenShouldReturnUser()
       throws JsonProcessingException, InterruptedException {
@@ -70,6 +73,7 @@ class UserServiceMockWebServerTest {
     assertThat(actualUser).isEqualTo(expectedUser);
   }
 
+  // Test the getUserWithRetryAsync method when the API keeps failing
   @Test
   void whenGetUserWithRetryAsync_apiKeepsFailing_thenShouldReturnError() {
     mockWebServer.enqueue(new MockResponse().setResponseCode(418));
@@ -87,12 +91,12 @@ class UserServiceMockWebServerTest {
         .verify();
   }
 
+  // Test the getUserWithRetryAsync method when the API eventually succeeds
   @Test
   void whenGetUserWithRetryAsync_apiEventuallySucceeds_thenShouldReturnUser()
       throws JsonProcessingException {
     User expectedUser = new User(1, "Eric Cartman", "eric.cartman@email.com");
-
-    // Enqueue two failed responses and then a successful response
+// Enqueue two failed responses and then a successful response
     mockWebServer.enqueue(new MockResponse().setResponseCode(500));
     mockWebServer.enqueue(new MockResponse().setResponseCode(500));
     mockWebServer.enqueue(new MockResponse().setBody(objectMapper.writeValueAsString(expectedUser))
@@ -104,10 +108,10 @@ class UserServiceMockWebServerTest {
         .verifyComplete();
   }
 
+  // Test the getUserWithFallback method when the API fails
   @Test
   void whenGetUserWithFallback_thenShouldReturnFallbackUser() {
     User fallbackUser = new User();
-
     mockWebServer.enqueue(new MockResponse().setResponseCode(500));
 
     User actualUser = userService.getUserWithFallback("1");
@@ -115,20 +119,20 @@ class UserServiceMockWebServerTest {
     assertThat(actualUser).isEqualTo(fallbackUser);
   }
 
+  // Test the getUserWithErrorHandling method when the API returns a Not Found error
   @Test
   void whenGetUserWithErrorHandling_notFound_thenShouldReturnError() {
     mockWebServer.enqueue(new MockResponse().setResponseCode(404));
-
     Exception exception = assertThrows(RuntimeException.class,
         () -> userService.getUserWithErrorHandling("1"));
 
     assertThat(exception.getMessage()).isEqualTo("API not found");
   }
 
+  // Test the getUserWithErrorHandling method when the API returns a Service Unavailable error
   @Test
   void whenGetUserWithErrorHandling_serviceUnavailable_thenShouldReturnError() {
     mockWebServer.enqueue(new MockResponse().setResponseCode(503));
-
     Exception exception = assertThrows(RuntimeException.class,
         () -> userService.getUserWithErrorHandling("1"));
 
