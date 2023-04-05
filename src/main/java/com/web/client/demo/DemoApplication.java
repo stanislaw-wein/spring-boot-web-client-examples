@@ -11,16 +11,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Slf4j
 @AllArgsConstructor
 public class DemoApplication implements CommandLineRunner {
-    private final UserService userService;
 
-    public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
-    }
+  private final UserService userService;
 
-    @Override
-    public void run(final String... args) {
-        userService
-                .getUserByIdAsync("1")
-                .subscribe(user -> log.info("Get user async: {}", user));
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(DemoApplication.class, args);
+  }
+
+  @Override
+  public void run(final String... args) {
+    userService
+        .getUserByIdAsync("1")
+        .subscribe(user -> log.info("Get user async: {}", user));
+  }
 }
